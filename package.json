@@ -1,0 +1,40 @@
+{
+  "name": "harmonica-sync",
+  "version": "0.1.0",
+  "description": "Sync Harmonica deliberation sessions to markdown files",
+  "license": "MIT",
+  "type": "module",
+  "main": "dist/cli.js",
+  "bin": {
+    "harmonica-sync": "dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "templates"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "prepublishOnly": "npm run build",
+    "start": "node dist/cli.js"
+  },
+  "keywords": [
+    "harmonica",
+    "deliberation",
+    "facilitation",
+    "sync",
+    "markdown"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/harmonicabot/harmonica-sync.git"
+  },
+  "homepage": "https://github.com/harmonicabot/harmonica-sync#readme",
+  "dependencies": {
+    "mustache": "^4.2.0"
+  },
+  "devDependencies": {
+    "@types/mustache": "^4.2.5",
+    "@types/node": "^20.11.0",
+    "typescript": "^5.5.0"
+  }
+}
