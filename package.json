@@ -1,6 +1,6 @@
 {
   "name": "harmonica-sync",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Sync Harmonica deliberation sessions to markdown files",
   "license": "MIT",
   "type": "module",
