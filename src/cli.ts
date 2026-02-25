@@ -58,21 +58,21 @@ function runInit(): void {
     } else {
       // Fallback: write a minimal template
       fs.writeFileSync(templatePath, `---
-title: "{{topic}}"
+title: "{{{topic}}}"
 date: {{date}}
 session_id: {{id}}
 participants: {{participant_count}}
 status: {{status}}
 ---
 
-# {{topic}}
+# {{{topic}}}
 
-**Goal:** {{goal}}
+**Goal:** {{{goal}}}
 
 {{#summary}}
 ## Summary
 
-{{summary}}
+{{{summary}}}
 {{/summary}}
 `);
     }

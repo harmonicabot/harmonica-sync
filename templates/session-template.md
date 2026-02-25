@@ -1,32 +1,32 @@
 ---
-title: "{{topic}}"
+title: "{{{topic}}}"
 date: {{date}}
 session_id: {{id}}
 participants: {{participant_count}}
 status: {{status}}
 tags:
 {{#tags}}
-  - {{.}}
+  - {{{.}}}
 {{/tags}}
 ---
 
-# {{topic}}
+# {{{topic}}}
 
-**Goal:** {{goal}}
+**Goal:** {{{goal}}}
 {{#critical}}
-**Critical Question:** {{critical}}
+**Critical Question:** {{{critical}}}
 {{/critical}}
 
 {{#context}}
 ## Context
 
-{{context}}
+{{{context}}}
 {{/context}}
 
 {{#summary}}
 ## Summary
 
-{{summary}}
+{{{summary}}}
 {{/summary}}
 
 {{#responses}}
@@ -36,7 +36,7 @@ tags:
 ### Participant {{number}}
 
 {{#messages}}
-> {{content}}
+> {{{content}}}
 
 {{/messages}}
 {{/participants}}
