@@ -50,7 +50,9 @@ npm publish          # triggers Windows Hello prompt
 
 ## Roadmap
 
-- **HAR-338: Auto-generate emerging consensus** — Post-sync synthesis step that reads all content in the output directory (sessions, workshops, artifacts), sends it to an LLM, and writes a consensus summary to a data file (e.g., `_data/consensus.yml`). Supports BYOM (Bring Your Own Model): Harmonica API by default, or community-provided LLM config in `harmonica.config.json`. The sync tool handles multi-source assembly — the LLM just receives markdown and a synthesis prompt. Harmonica API stays focused on session data.
+- **Research sync pipeline** — `--mode research` for complex projects where 1 session → many output files. Extract, map (LLM-assisted), reconcile (human-in-the-loop), compute metrics, render via templates. Canonical data file as source of truth. ([Design doc](docs/plans/2026-03-02-research-sync-pipeline.md))
+- **Git repo as session context** — Post-sync step that pushes repo content (workshops, artifacts, session summaries) back into Harmonica as context sources via the Session Context Sources API (HAR-94). The git repo becomes community long-term memory feeding into live sessions.
+- **Auto-generate emerging consensus (HAR-338)** — Post-sync synthesis step that reads all content in the output directory, sends it to an LLM, and writes a consensus summary to a data file (e.g., `_data/consensus.yml`). Supports BYOM (Bring Your Own Model): Harmonica API by default, or community-provided LLM config in `harmonica.config.json`.
 
 ## Related
 
