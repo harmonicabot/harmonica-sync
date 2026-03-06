@@ -48,6 +48,10 @@ npm version patch
 npm publish          # triggers Windows Hello prompt
 ```
 
+## Roadmap
+
+- **HAR-338: Auto-generate emerging consensus** — Post-sync synthesis step that reads all content in the output directory (sessions, workshops, artifacts), sends it to an LLM, and writes a consensus summary to a data file (e.g., `_data/consensus.yml`). Supports BYOM (Bring Your Own Model): Harmonica API by default, or community-provided LLM config in `harmonica.config.json`. The sync tool handles multi-source assembly — the LLM just receives markdown and a synthesis prompt. Harmonica API stays focused on session data.
+
 ## Related
 
 - `harmonica-mcp/` — MCP server (shares API client code)
