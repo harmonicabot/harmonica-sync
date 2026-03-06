@@ -123,6 +123,10 @@ npx harmonica-sync --help              # show help
 | `HARMONICA_API_KEY` | Yes | API key from Harmonica dashboard |
 | `HARMONICA_API_URL` | No | API base URL (default: `https://app.harmonica.chat`) |
 
+## Roadmap
+
+- **Auto-generate emerging consensus** — After syncing sessions, synthesize an "emerging consensus" summary from all content in the output directory (sessions, workshops, artifacts) and write it to a data file (e.g., `_data/consensus.yml`) for static site generators. Supports BYOM (Bring Your Own Model): use Harmonica's API by default, or configure your own LLM provider in `harmonica.config.json`. ([HAR-338](https://linear.app/harmonica-pro/issue/HAR-338))
+
 ## License
 
 MIT
