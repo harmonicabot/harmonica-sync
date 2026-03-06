@@ -60,4 +60,4 @@ npm publish          # triggers Windows Hello prompt
 
 - `harmonica-mcp/` — MCP server (shares API client code)
 - `needs-discovery/` — First consumer (NSRelaTech session archive, runs via GitHub Actions)
-- `harmonica-mcp/docs/plans/2026-02-24-harmonica-sync-design.md` — Original design doc
+- `docs/plans/2026-02-24-harmonica-sync-design.md` — Original design doc
