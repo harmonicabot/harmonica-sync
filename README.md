@@ -126,6 +126,7 @@ npx harmonica-sync --help              # show help
 ## Roadmap
 
 - **Research sync pipeline** — A `--mode research` for complex research projects where one session produces many output files. Extracts participant data, maps messages to problems/solutions (LLM-assisted or rule-based), computes metrics (breadth, depth, urgency scores), and renders 50+ files across wiki pages and dashboards — all from a single canonical data file. Includes a human-in-the-loop reconciliation step before any writes. ([Design doc](docs/plans/2026-03-02-research-sync-pipeline.md))
+- **Git repo as session context** — After syncing, push repo content (workshop notes, artifacts, previous session summaries) back into Harmonica as context sources for new sessions. Uses the Session Context Sources API ([HAR-94](https://linear.app/harmonica-pro/issue/HAR-94)) so the facilitator can reference the community's collective knowledge. Can run as a post-sync step in CI — the git repo becomes the community's long-term memory that feeds back into live conversations.
 - **Auto-generate emerging consensus** — Post-sync synthesis step that reads all content in the output directory (sessions, workshops, artifacts) and writes a consensus summary to a data file (e.g., `_data/consensus.yml`) for static site generators. Supports BYOM (Bring Your Own Model): use Harmonica's API by default, or configure your own LLM provider in `harmonica.config.json`. ([HAR-338](https://linear.app/harmonica-pro/issue/HAR-338))
 
 ## License
