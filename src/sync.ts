@@ -6,9 +6,11 @@ import { renderSession } from './template.js';
 export interface SyncConfig {
   sync: {
     search: string[];
+    sessionIds?: string[];
     keywords?: string[];
     minParticipants?: number;
     requireSummary?: boolean;
+    includeResponses?: boolean;
   };
   output: {
     dir?: string;
@@ -114,6 +116,7 @@ export async function sync(config: SyncConfig, configDir: string): Promise<void>
   const filenameTemplate = config.output.filename || '{{date}}-{{id}}.md';
   const minParticipants = config.sync.minParticipants ?? 1;
   const requireSummary = config.sync.requireSummary ?? true;
+  const includeResponses = config.sync.includeResponses ?? false;
 
   // Load template
   const templatePath = config.output.template
@@ -123,30 +126,50 @@ export async function sync(config: SyncConfig, configDir: string): Promise<void>
   const existingIds = getExistingSessionIds(outputDir);
   console.log(`Found ${existingIds.size} existing sessions in ${path.relative(process.cwd(), outputDir) || outputDir}`);
 
-  // Collect unique sessions across all search queries, tracking which queries matched
+  // Collect unique sessions across explicit IDs and search queries
   const sessionMap = new Map<string, { session: any; queries: string[] }>();
 
-  for (const query of config.sync.search) {
-    for (const status of ['completed', 'active'] as const) {
+  // Explicit session IDs — fetch directly, no search ambiguity
+  if (config.sync.sessionIds && config.sync.sessionIds.length > 0) {
+    for (const id of config.sync.sessionIds) {
+      if (existingIds.has(id)) continue;
       try {
-        const result = await client.listSessions({ q: query, status, limit: 50 });
-        for (const session of result.data) {
-          const existing = sessionMap.get(session.id);
-          if (existing) {
-            if (!existing.queries.includes(query)) {
-              existing.queries.push(query);
-            }
-          } else {
-            sessionMap.set(session.id, { session, queries: [query] });
-          }
-        }
+        const session = await client.getSession(id);
+        sessionMap.set(id, { session, queries: ['explicit'] });
       } catch (err: any) {
-        console.warn(`Search for "${query}" (${status}) failed: ${err.message}`);
+        console.warn(`Failed to fetch session ${id}: ${err.message}`);
       }
     }
+    console.log(`Found ${sessionMap.size} sessions from explicit IDs`);
   }
 
-  console.log(`Found ${sessionMap.size} sessions matching search queries`);
+  // Search queries — only if no explicit sessionIds provided
+  if (!config.sync.sessionIds || config.sync.sessionIds.length === 0) {
+    if (config.sync.search.length === 0) {
+      console.error('Error: config must specify either "sessionIds" or "search" queries.');
+      process.exit(1);
+    }
+    for (const query of config.sync.search) {
+      for (const status of ['completed', 'active'] as const) {
+        try {
+          const result = await client.listSessions({ q: query, status, limit: 50 });
+          for (const session of result.data) {
+            const existing = sessionMap.get(session.id);
+            if (existing) {
+              if (!existing.queries.includes(query)) {
+                existing.queries.push(query);
+              }
+            } else {
+              sessionMap.set(session.id, { session, queries: [query] });
+            }
+          }
+        } catch (err: any) {
+          console.warn(`Search for "${query}" (${status}) failed: ${err.message}`);
+        }
+      }
+    }
+    console.log(`Found ${sessionMap.size} sessions matching search queries`);
+  }
 
   // Filter to new sessions only
   const candidates = [...sessionMap.entries()].filter(([id]) => !existingIds.has(id));
@@ -169,10 +192,24 @@ export async function sync(config: SyncConfig, configDir: string): Promise<void>
       continue;
     }
 
-    // Keyword relevance filter
+    // Post-search validation: verify the session text actually contains
+    // at least one search query as a substring (API search is fuzzy and
+    // returns false positives across the entire account)
+    const sessionText = `${details.topic} ${details.goal} ${details.context || ''}`.toLowerCase();
+    const matchedQuery = queries.includes('explicit') || queries.some(q =>
+      q.toLowerCase().split(/\s+/).every(word => sessionText.includes(word))
+    );
+    if (!matchedQuery) {
+      console.log(`Skipping: ${details.topic} (${id}) — search query not found in session text`);
+      continue;
+    }
+
+    // Keyword relevance filter (all keywords must match as whole words)
     if (config.sync.keywords && config.sync.keywords.length > 0) {
-      const text = `${details.topic} ${details.goal} ${details.context || ''}`.toLowerCase();
-      if (!config.sync.keywords.some(kw => text.includes(kw.toLowerCase()))) {
+      if (!config.sync.keywords.some(kw => {
+        const re = new RegExp(`\\b${kw.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}\\b`, 'i');
+        return re.test(sessionText);
+      })) {
         console.log(`Skipping: ${details.topic} (${id}) — no keyword match`);
         continue;
       }
@@ -198,13 +235,15 @@ export async function sync(config: SyncConfig, configDir: string): Promise<void>
       continue;
     }
 
-    // Fetch responses
+    // Fetch responses only if explicitly opted in
     let responses: ParticipantResponse[] = [];
-    try {
-      const responsesResult = await client.getResponses(id);
-      responses = responsesResult.data;
-    } catch {
-      // responses unavailable, continue without them
+    if (includeResponses) {
+      try {
+        const responsesResult = await client.getResponses(id);
+        responses = responsesResult.data;
+      } catch {
+        // responses unavailable, continue without them
+      }
     }
 
     console.log(`Syncing: ${details.topic} (${id}) — ${details.participant_count} participants`);

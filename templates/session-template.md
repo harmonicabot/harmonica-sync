@@ -29,15 +29,3 @@ tags:
 {{{summary}}}
 {{/summary}}
 
-{{#responses}}
-## Participant Responses
-
-{{#participants}}
-### Participant {{number}}
-
-{{#messages}}
-> {{{content}}}
-
-{{/messages}}
-{{/participants}}
-{{/responses}}
