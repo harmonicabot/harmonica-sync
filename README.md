@@ -8,7 +8,7 @@ Sync [Harmonica](https://harmonica.chat) deliberation sessions to markdown files
 # 1. Scaffold config and template
 npx harmonica-sync --init
 
-# 2. Edit harmonica.config.json with your search queries
+# 2. Edit harmonica.config.json with your session IDs or search queries
 
 # 3. Set your API key (from Harmonica dashboard → Settings → API Keys)
 export HARMONICA_API_KEY=hm_live_...
@@ -19,10 +19,10 @@ npx harmonica-sync
 
 ## How It Works
 
-1. Searches the Harmonica API with your configured queries
-2. Filters by keywords, participant count, and summary availability
+1. Fetches sessions by explicit IDs, or searches the Harmonica API with your configured queries
+2. Validates search results and filters by keywords, participant count, and summary availability
 3. Skips sessions already in the output directory (idempotent)
-4. Renders each session through a Mustache template
+4. Renders each session through a Mustache template (summaries only by default — individual responses are opt-in)
 5. Writes markdown files to the output directory
 
 ## Configuration
@@ -32,8 +32,8 @@ npx harmonica-sync
 ```json
 {
   "sync": {
-    "search": ["community feedback", "retrospective"],
-    "keywords": ["our-org", "team"],
+    "sessionIds": ["hst_abc123", "hst_def456"],
+    "search": [],
     "minParticipants": 1,
     "requireSummary": true
   },
@@ -45,12 +45,20 @@ npx harmonica-sync
 }
 ```
 
+### Session selection
+
+Use **`sessionIds`** (recommended) to sync specific sessions by ID, or **`search`** for query-based discovery. When `sessionIds` is provided, search queries are ignored.
+
+> **Privacy note:** Search queries use the Harmonica API's full-text search, which may return sessions beyond your own depending on your API key's scope. Use `sessionIds` when syncing to public repositories.
+
 | Field | Description | Default |
 |-------|-------------|---------|
-| `sync.search` | API search queries (required) | — |
-| `sync.keywords` | Filter on topic/goal/context text | all results accepted |
+| `sync.sessionIds` | Explicit session IDs to sync (recommended) | — |
+| `sync.search` | API search queries (used when no sessionIds) | — |
+| `sync.keywords` | Filter on topic/goal/context text (whole-word match) | all results accepted |
 | `sync.minParticipants` | Skip sessions below this count | `1` |
 | `sync.requireSummary` | Only sync sessions with a summary | `true` |
+| `sync.includeResponses` | Include individual participant responses | `false` |
 | `output.dir` | Output directory | `sessions` |
 | `output.filename` | Filename template (`{{date}}`, `{{id}}`, `{{slug}}`) | `{{date}}-{{id}}.md` |
 | `output.template` | Path to Mustache template | built-in Quartz-compatible |

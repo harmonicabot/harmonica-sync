@@ -30,6 +30,9 @@ cli.ts → sync.ts → api.ts
 ## Key Design Decisions
 
 - **Idempotent**: Scans output directory for existing `hst_*` session IDs in filenames to skip already-synced sessions.
+- **Responses excluded by default**: `includeResponses` defaults to `false`. Individual participant responses are never fetched or rendered unless explicitly opted in. The default template contains only summaries.
+- **Explicit session targeting**: `sessionIds` config bypasses search entirely — fetches only the listed sessions. Recommended for public repos.
+- **Post-search validation**: When using search queries, results are validated — all query words must appear in the session's topic/goal/context. Prevents fuzzy API matches from leaking unrelated sessions.
 - **Triple-brace Mustache**: Templates use `{{{var}}}` (unescaped) not `{{var}}` — output is markdown, not HTML. HTML escaping turns apostrophes into `&#39;`.
 - **Both active and completed sessions**: Searches both statuses because Harmonica sessions may stay "active" even after generating a summary.
 - **No runtime deps except `mustache`**: Uses native `fetch`.
